@@ -150,8 +150,12 @@ fun Greeting() {
 
                 Button(
                     onClick = {
+                        //convierto la respuesta tanto del usuario como del hashMap en minusculas para que se pueda acertar sin tener en cuenta las mayusculas
+                        val respuestaUsuario = respuesta.lowercase()
+                        val respuestaCorrecta = preguntasRespuestas[listaPreguntas[numPartida]]?.lowercase()
+
                         //si la respuesta coincide con el numero de la pregunta dentro de la lista saca mensaje de correcto, aumenta la puntuacion y elimina la pregunta ya mostrada.
-                        if (respuesta == preguntasRespuestas[listaPreguntas[numPartida]]) {
+                        if (respuestaUsuario == respuestaCorrecta) {
                             Toast.makeText(context, "CORRECTO. Has acertado", Toast.LENGTH_SHORT)
                                 .show()
                             puntuacion++
