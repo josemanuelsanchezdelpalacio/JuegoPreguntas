@@ -18,9 +18,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -57,8 +67,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    preguntasAleatorias()
                     Greeting()
+                    preguntasAleatorias()
                 }
             }
         }
@@ -66,11 +76,11 @@ class MainActivity : ComponentActivity() {
 }
 
 //metodo que recorre el hashMap y añade a la lista las preguntas. Despues las devuelve de forma aleatoria
-fun preguntasAleatorias(): String {
+fun preguntasAleatorias(): MutableList<String> {
     for (pregunta in preguntasRespuestas) {
         listaPreguntas.add(pregunta.key)
     }
-    return listaPreguntas.shuffle().toString()
+    return listaPreguntas.shuffled().toMutableList()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +95,10 @@ fun Greeting() {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107),
+                    titleContentColor = Color.Black
+                ),
                 title = {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -93,19 +107,34 @@ fun Greeting() {
                         Text(
                             text = "TITULO DEL JUEGO",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 15.sp
                         )
                         Text(
                             text = "PUNTUACION: $puntuacion",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 15.sp
                         )
                     }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFC107),
-                    contentColorFor(Color.Black)
-                )
+                }
+            )
+        },
+        //y un CenterAlignedTopAppBar para poner un boton que reiniciara el juego
+        bottomBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    //cuando se pulsa el boton reinicia los valores a su estado inicial
+                    Button(onClick = {
+                        numPartida = 0
+                        puntuacion = 0
+                    }) {
+                        Text(
+                            text = "REINICIAR JUEGO",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                        Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Reiniciar")
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -156,21 +185,22 @@ fun Greeting() {
 
                         //si la respuesta coincide con el numero de la pregunta dentro de la lista saca mensaje de correcto, aumenta la puntuacion y elimina la pregunta ya mostrada.
                         if (respuestaUsuario == respuestaCorrecta) {
-                            Toast.makeText(context, "CORRECTO. Has acertado", Toast.LENGTH_SHORT)
-                                .show()
-                            puntuacion++
                             preguntasRespuestas.remove(listaPreguntas[numPartida])
+                            Toast.makeText(context, "CORRECTO. Has acertado", Toast.LENGTH_SHORT).show()
+                            puntuacion++
                         } else {
-                            //si no es correcta muestro el mensaje de error con la respuesta correcta
-                            Toast.makeText(
-                                context,
-                                "ERROR. La respuesta correcta es: ${preguntasRespuestas[listaPreguntas[numPartida]]}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            //si no es correcta muestro el mensaje de error con la respuesta correcta y reduce la puntuacion
+                            Toast.makeText(context, "ERROR. La respuesta correcta es: ${preguntasRespuestas[listaPreguntas[numPartida]]}", Toast.LENGTH_SHORT).show()
+                            puntuacion--
                         }
 
+                        //cuando se pulsa el boton pasa a la siguiente pregunta y pone el edittext vacio
                         numPartida++
                         respuesta = ""
+
+                        if(listaPreguntas.isEmpty()){
+                            listaPreguntas.removeAt(0)
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -179,7 +209,6 @@ fun Greeting() {
                     Text(text = "Validar")
                 }
             } else {
-                Toast.makeText(context, "FIN DEL JUEGO", Toast.LENGTH_SHORT).show()
             }
         }
     }
