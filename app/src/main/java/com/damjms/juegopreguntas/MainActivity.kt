@@ -76,11 +76,11 @@ class MainActivity : ComponentActivity() {
 }
 
 //metodo que recorre el hashMap y añade a la lista las preguntas. Despues las devuelve de forma aleatoria
-fun preguntasAleatorias(): MutableList<String> {
+fun preguntasAleatorias(): String {
     for (pregunta in preguntasRespuestas) {
         listaPreguntas.add(pregunta.key)
     }
-    return listaPreguntas.shuffled().toMutableList()
+    return listaPreguntas.shuffled().first()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -197,10 +197,6 @@ fun Greeting() {
                         //cuando se pulsa el boton pasa a la siguiente pregunta y pone el edittext vacio
                         numPartida++
                         respuesta = ""
-
-                        if(listaPreguntas.isEmpty()){
-                            listaPreguntas.removeAt(0)
-                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -209,6 +205,7 @@ fun Greeting() {
                     Text(text = "Validar")
                 }
             } else {
+
             }
         }
     }
