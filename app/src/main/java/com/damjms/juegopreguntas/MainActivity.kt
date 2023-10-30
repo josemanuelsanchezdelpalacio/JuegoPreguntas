@@ -126,6 +126,9 @@ fun Greeting() {
                     Button(onClick = {
                         numPartida = 0
                         puntuacion = 0
+                        listaPreguntas.clear()
+                        listaPreguntas.addAll(preguntasRespuestas.keys)
+                        listaPreguntas.shuffle()
                     }) {
                         Text(
                             text = "REINICIAR JUEGO",
@@ -185,13 +188,15 @@ fun Greeting() {
 
                         //si la respuesta coincide con el numero de la pregunta dentro de la lista saca mensaje de correcto, aumenta la puntuacion y elimina la pregunta ya mostrada.
                         if (respuestaUsuario == respuestaCorrecta) {
-                            preguntasRespuestas.remove(listaPreguntas[numPartida])
+                            listaPreguntas.removeAt(numPartida)
                             Toast.makeText(context, "CORRECTO. Has acertado", Toast.LENGTH_SHORT).show()
                             puntuacion++
                         } else {
                             //si no es correcta muestro el mensaje de error con la respuesta correcta y reduce la puntuacion
                             Toast.makeText(context, "ERROR. La respuesta correcta es: ${preguntasRespuestas[listaPreguntas[numPartida]]}", Toast.LENGTH_SHORT).show()
-                            puntuacion--
+                            if(puntuacion > 0){
+                                puntuacion--
+                            }
                         }
 
                         //cuando se pulsa el boton pasa a la siguiente pregunta y pone el edittext vacio
@@ -205,7 +210,11 @@ fun Greeting() {
                     Text(text = "Validar")
                 }
             } else {
-
+                Text(
+                    text = "FIN DE LA PARTIDA",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
             }
         }
     }
