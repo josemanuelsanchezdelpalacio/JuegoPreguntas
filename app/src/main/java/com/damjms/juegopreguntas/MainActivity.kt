@@ -94,6 +94,14 @@ fun Greeting() {
     var mostrarAlertDialog by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
+    fun reiniciarJuego(){
+        numPartida = 0
+        puntuacion = 0
+        listaPreguntas.clear()
+        listaPreguntas.addAll(preguntasRespuestas.keys)
+        listaPreguntas.shuffle()
+    }
+
     //creo un scaffold para poner un CenterAlignedTopAppBar donde poner la puntuacion y un titulo
     Scaffold(
         topBar = {
@@ -127,11 +135,7 @@ fun Greeting() {
                 title = {
                     //cuando se pulsa el boton reinicia los valores a su estado inicial
                     Button(onClick = {
-                        numPartida = 0
-                        puntuacion = 0
-                        listaPreguntas.clear()
-                        listaPreguntas.addAll(preguntasRespuestas.keys)
-                        listaPreguntas.shuffle()
+                        reiniciarJuego()
                     }) {
                         Text(
                             text = "REINICIAR JUEGO",
@@ -183,14 +187,6 @@ fun Greeting() {
                         .align(Alignment.CenterHorizontally)
                 )
 
-                if (mostrarAlertDialog) {
-                    AlertDialog(
-                        title = { Text(text = "FINAL DEL JUEGO") },
-                        text = { Text(text = "Tu puntuacion final ha sido $puntuacion") },
-                        onDismissRequest = { mostrarAlertDialog = false },
-                        confirmButton = { TextButton(onClick = { mostrarAlertDialog = false }) { Text(text = "OK") } })
-                }
-
                 Button(
                     onClick = {
                         //convierto la respuesta tanto del usuario como del hashMap en minusculas para que se pueda acertar sin tener en cuenta las mayusculas
@@ -220,97 +216,22 @@ fun Greeting() {
                     Text(text = "Validar")
                 }
             } else {
+                //cuando termine el juego sale un AlertDialog con la puntuacion final del jugador y si le da a OK o toca la pantalla se reinicia el juego
+                if (mostrarAlertDialog) {
+                    AlertDialog(
+                        title = { Text(text = "FINAL DEL JUEGO") },
+                        text = { Text(text = "Tu puntuacion final ha sido $puntuacion") },
+                        onDismissRequest = {
+                            mostrarAlertDialog = false
+                            reiniciarJuego()
+                        },
+                        confirmButton = { TextButton(onClick = {
+                            mostrarAlertDialog = false
+                            reiniciarJuego()
+                        }) { Text(text = "OK") } })
+                }
                 mostrarAlertDialog = true
             }
         }
     }
 }
-
-//todo lo comentado aqui seria para hacerlo a traves del metodo fun preguntasAleatorias() el cual directamente aleatoriza un HashMap
-/*
-fun preguntasAleatorias(): String {
-    return preguntasRespuestas.keys.random()
-}
-
-@Composable
-fun Greeting() {
-    var pregunta by rememberSaveable { mutableStateOf("") }
-    var respuesta by rememberSaveable { mutableStateOf("") }
-    var puntuacion by rememberSaveable { mutableStateOf(0) }
-    val context = LocalContext.current
-
-    Column {
-        Text(
-            text = "PUNTUACION: $puntuacion",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(8.dp)
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-
-            Image(
-                modifier = Modifier
-                    .size(200.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.background),
-                contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.pelis_interrogante),
-                contentDescription = "interrogantePeliLogo",
-                alignment = Alignment.Center
-            )
-
-            Text(
-                text = pregunta,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            OutlinedTextField(
-                value = respuesta,
-                onValueChange = { respuesta = it },
-                label = { Text(text = "Introduce tu respuesta") },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            Button(
-                onClick = {
-                    //si la respuesta coincide con la pregunta dentro del hashMap aumenta la puntuacion y vuelve a sacar una pregunta aleatoria
-                    if (respuesta == preguntasRespuestas[pregunta]) {
-                        Toast.makeText(
-                            context,
-                            "CORRECTO. Has acertado",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        puntuacion++
-                        preguntasRespuestas.remove(pregunta)
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "ERROR. La respuesta correcta es: ${preguntasRespuestas[pregunta]}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    pregunta = preguntasAleatorias()
-                    respuesta = ""
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                Text(text = "Validar")
-            }
-        }
-    }
-}*/
