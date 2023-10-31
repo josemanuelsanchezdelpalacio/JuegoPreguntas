@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -36,6 +37,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.contentColorFor
@@ -80,7 +82,7 @@ fun preguntasAleatorias(): String {
     for (pregunta in preguntasRespuestas) {
         listaPreguntas.add(pregunta.key)
     }
-    return listaPreguntas.shuffled().first()
+    return listaPreguntas.shuffle().toString()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,6 +91,7 @@ fun Greeting() {
     var respuesta by rememberSaveable { mutableStateOf("") }
     var numPartida by rememberSaveable { mutableStateOf(0) }
     var puntuacion by rememberSaveable { mutableStateOf(0) }
+    var mostrarAlertDialog by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
     //creo un scaffold para poner un CenterAlignedTopAppBar donde poner la puntuacion y un titulo
@@ -180,6 +183,14 @@ fun Greeting() {
                         .align(Alignment.CenterHorizontally)
                 )
 
+                if (mostrarAlertDialog) {
+                    AlertDialog(
+                        title = { Text(text = "FINAL DEL JUEGO") },
+                        text = { Text(text = "Tu puntuacion final ha sido $puntuacion") },
+                        onDismissRequest = { mostrarAlertDialog = false },
+                        confirmButton = { TextButton(onClick = { mostrarAlertDialog = false }) { Text(text = "OK") } })
+                }
+
                 Button(
                     onClick = {
                         //convierto la respuesta tanto del usuario como del hashMap en minusculas para que se pueda acertar sin tener en cuenta las mayusculas
@@ -188,7 +199,6 @@ fun Greeting() {
 
                         //si la respuesta coincide con el numero de la pregunta dentro de la lista saca mensaje de correcto, aumenta la puntuacion y elimina la pregunta ya mostrada.
                         if (respuestaUsuario == respuestaCorrecta) {
-                            listaPreguntas.removeAt(numPartida)
                             Toast.makeText(context, "CORRECTO. Has acertado", Toast.LENGTH_SHORT).show()
                             puntuacion++
                         } else {
@@ -210,11 +220,7 @@ fun Greeting() {
                     Text(text = "Validar")
                 }
             } else {
-                Text(
-                    text = "FIN DE LA PARTIDA",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp
-                )
+                mostrarAlertDialog = true
             }
         }
     }
